@@ -1,0 +1,25 @@
+﻿{% extends 'layout.html' %}
+
+{% block body %}
+    <div class="jumbotron text-center">
+        <h1>Welcome to the CAT-alog</h1>
+        <p class="lead">Here you can keep track of and organize all the cats</p>     
+        {% if 'username' not in session %}
+        <br>
+        <span class="g-signin"
+            data-scope="openid email"
+            data-clientid="927993904882-86krdvbhsoop40jfme6p39beii9ero5m.apps.googleusercontent.com"
+            data-redirecturi="postmessage"
+            data-accesstype="offline"
+            data-cookiepolicy="single_host_origin"
+            data-callback="signInCallback"
+            data-approvalprompt="force">
+          </span>
+    </div>
+        {% else %}
+    <br><br> 
+    <div class="alert alert-primary">
+        <h3 class="text-center">Get CAT-alogging, {{session.username}}</h3>
+    </div>
+        {% endif %}
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+    <h1>Breeds</h1>
+    {% for breed in breed %}
+    <ul class="list-group">   
+        <li class="list-group-item">
+            <a href="/breed/{{breed.id}}">{{breed.name}}</a>
+            {% if 'username' in session %}
+            <div class="float-right">
+            <a class="btn btn-success" href="/breed/{{breed.id}}/edit/" role="button">Edit</a>
+            <a class="btn btn-danger" href="/breed/{{breed.id}}/delete/" role="button">Delete</a>
+            </div>
+            {% endif %}
+        </li>      
+    </ul>     
+        {% endfor %}
+    <br>  
+    <hr>  
+    <a href="/breed/new" class="btn btn-success">Add Breed</a>
+{% endblock %}

@@ -1,0 +1,22 @@
+﻿{% extends 'layout.html' %}
+
+{% block body %}
+    <h1>Cats</h1>
+    {% for cat in cats %}
+        <ul class="list-group">  
+            <li class="list-group-item">
+                <a class="font-weight-bold" >{{cat.name}}</a>
+                <a class="text-muted">{{cat.bio}}</a>
+                {% if 'username' in session %}
+                <div class="float-right">
+                <a class="btn btn-success" href="/breed/{{breed.id}}/cat/{{cat.id}}/edit/" role="button">Edit</a>
+                <a class="btn btn-danger" href="/breed/{{breed.id}}/cat/{{cat.id}}/delete/" role="button">Delete</a>
+                </div>
+                {% endif %}
+            </li>     
+        </ul>     
+    {% endfor %}
+    <br>
+    <hr>    
+    <a href="/breed/{{breed.id}}/cat/new/" class="btn btn-success">Add Cat</a>
+{% endblock %}
