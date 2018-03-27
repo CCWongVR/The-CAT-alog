@@ -1,0 +1,10 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+<form method="POST" action="">
+  <div class="form-group">
+      <label for="delete">Delete {{cat.name}}?</label>
+  </div>
+  <input class="btn btn-danger" type="submit" value="Delete">
+</form>
+{% endblock %}

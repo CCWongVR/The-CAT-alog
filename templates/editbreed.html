@@ -1,0 +1,12 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+<h1>Edit Breed</h1>
+<form method="POST" action="">
+  <div class="form-group">
+      <label for="name">Name</label>
+      <input type="text" class="form-control" name="name" placeholder="{{breed.name}}">
+  </div>
+  <input class="btn btn-primary" type="submit" value="Submit">
+</form>
+{% endblock %}

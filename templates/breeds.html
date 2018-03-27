@@ -3,9 +3,9 @@
 {% block body %}
     <h1>Breeds</h1>
     {% for breed in breed %}
-    <ul class="list-group">   
+    <ul class="list-group list-group-flush">   
         <li class="list-group-item">
-            <a href="/breed/{{breed.id}}">{{breed.name}}</a>
+            <a class="text-dark" href="/breed/{{breed.id}}">{{breed.name}}</a>
             {% if 'username' in session %}
             <div class="float-right">
             <a class="btn btn-success" href="/breed/{{breed.id}}/edit/" role="button">Edit</a>
@@ -15,7 +15,6 @@
         </li>      
     </ul>     
         {% endfor %}
-    <br>  
-    <hr>  
+    <br>   
     <a href="/breed/new" class="btn btn-success">Add Breed</a>
 {% endblock %}

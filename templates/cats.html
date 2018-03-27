@@ -3,7 +3,7 @@
 {% block body %}
     <h1>Cats</h1>
     {% for cat in cats %}
-        <ul class="list-group">  
+        <ul class="list-group list-group-flush">  
             <li class="list-group-item">
                 <a class="font-weight-bold" >{{cat.name}}</a>
                 <a class="text-muted">{{cat.bio}}</a>
@@ -16,7 +16,6 @@
             </li>     
         </ul>     
     {% endfor %}
-    <br>
-    <hr>    
+    <br>    
     <a href="/breed/{{breed.id}}/cat/new/" class="btn btn-success">Add Cat</a>
 {% endblock %}

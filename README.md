@@ -1,6 +1,6 @@
 # The CAT-alog
 
-Web app for the catalogging of cats using Flask / Python for the backend, SQLAlchemy as the Object-relational mapping tool, SQLite as the relational database management system, and using HTML5 / Bootstrap 4 for the Frontend.
+Web app for the catalogging of cats using Flask / Python for the backend, SQLAlchemy as the Object-relational mapping tool, SQLite as the relational database management system, and using HTML5 / Bootstrap 4 / jQuery for the Frontend design and Google+ Oauth2.0 Sign-in for authentication and authorization purposes. 
 
 ## Getting Started
 

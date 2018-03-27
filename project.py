@@ -216,7 +216,7 @@ def deleteBreed(breed_id):
     breedToDelete = session.query(Breed).filter_by(id=breed_id).one()
     if request.method == 'POST':
         session.delete(breedToDelete)
-        flash('%s Successfully Deleted' % breedToDelete.name, 'info')
+        flash('%s Are Now Extinct' % breedToDelete.name, 'info')
         session.commit()
         return redirect(url_for('breed', breed_id=breed_id))
     else:
@@ -244,7 +244,7 @@ def newCat(breed_id):
     if request.method == 'POST':
         newCat = Cat(
             name=request.form['name'], bio=request.form['bio'],
-            breed=breed, breed_id=breed_id)
+            breed_id=breed_id)
         session.add(newCat)
         session.commit()
         flash('New Cat %s Is Born' % (newCat.name), 'info')
@@ -255,7 +255,7 @@ def newCat(breed_id):
 
 # Edit a Cat
 @app.route(
-    '/breed/<int:breed_id>/cat/<int:cat_id>/edit',
+    '/breed/<int:breed_id>/cat/<int:cat_id>/edit/',
     methods=['GET', 'POST'])
 @login_required
 def editCat(breed_id, cat_id):
@@ -280,7 +280,7 @@ def editCat(breed_id, cat_id):
 
 # Delete a Cat
 @app.route(
-    '/breed/<int:breed_id>/cat/<int:cat_id>/delete',
+    '/breed/<int:breed_id>/cat/<int:cat_id>/delete/',
     methods=['GET', 'POST'])
 @login_required
 def deleteCat(breed_id, cat_id):
@@ -292,7 +292,7 @@ def deleteCat(breed_id, cat_id):
     if request.method == 'POST':
         session.delete(catToDelete)
         session.commit()
-        flash('Cat Successfully Deleted', 'info')
+        flash('Rest in peace, %s' % catToDelete.name, 'info')
         return redirect(url_for('cats', breed_id=breed_id))
     else:
         return render_template('deletecat.html', cat=catToDelete)
@@ -305,7 +305,7 @@ def dogs():
 
 
 # JSON APIs
-@app.route('/breed/<int:breed_id>/cat/JSON')
+@app.route('/breed/<int:breed_id>/cat/JSON/')
 def BreedJSON(breed_id):
     session.query(Breed).filter_by(id=breed_id).one()
     cats = session.query(Cat).filter_by(
@@ -313,13 +313,13 @@ def BreedJSON(breed_id):
     return jsonify(cats=[i.serialize for i in cats])
 
 
-@app.route('/breed/<int:breed_id>/cat/<int:cat_id>/JSON')
+@app.route('/breed/<int:breed_id>/cat/<int:cat_id>/JSON/')
 def CatJSON(breed_id, cat_id):
     cats = session.query(Cat).filter_by(id=cat_id).one()
     return jsonify(cats=cats.serialize)
 
 
-@app.route('/breed/JSON')
+@app.route('/breed/JSON/')
 def breedsJSON():
     breeds = session.query(Breed).all()
     return jsonify(breeds=[r.serialize for r in breeds])
