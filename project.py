@@ -4,7 +4,7 @@ from flask import (
     url_for, request, logging, redirect, g)
 from sqlalchemy import create_engine, asc
 from sqlalchemy.orm import sessionmaker
-from cat_db_setup import Base, Breed, Cat
+from cat_db_setup import Base, User, Breed, Cat
 from functools import wraps
 from flask import session as login_session
 import random
@@ -51,7 +51,7 @@ def main():
     return render_template('main.html', STATE=state)
 
 
-# Google oAuth
+# Google+ oAuth
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
     # Validate token
@@ -124,6 +124,12 @@ def gconnect():
     login_session['picture'] = data['picture']
     login_session['email'] = data['email']
 
+    # Check for user in DB, create if no record
+    user_id = getUserID(data["email"])
+    if not user_id:
+        user_id = createUser(login_session)
+    login_session['user_id'] = user_id
+
     output = ''
     output += '<h1>Welcome, '
     output += login_session['username']
@@ -136,6 +142,30 @@ def gconnect():
     return output
 
 
+# User Management Functions
+def createUser(login_session):
+    newUser = User(name=login_session['username'], email=login_session[
+                   'email'], picture=login_session['picture'])
+    session.add(newUser)
+    session.commit()
+    user = session.query(User).filter_by(email=login_session['email']).one()
+    return user.id
+
+
+def getUserInfo(user_id):
+    user = session.query(User).filter_by(id=user_id).one()
+    return user
+
+
+def getUserID(email):
+    try:
+        user = session.query(User).filter_by(email=email).one()
+        return user.id
+    except:
+        return None
+
+
+# Disconnect User
 @app.route('/gdisconnect')
 @login_required
 def gdisconnect():
@@ -156,6 +186,7 @@ def gdisconnect():
         del login_session['username']
         del login_session['email']
         del login_session['picture']
+        del login_session['user_id']
         flash("You have logged out", 'success')
         return redirect(url_for('main'))
     else:
@@ -174,11 +205,9 @@ def breed():
 @app.route('/breed/new/', methods=['GET', 'POST'])
 @login_required
 def newBreed():
-    if 'username' not in login_session:
-        flash('You must first log-in to add or edit', 'warning')
-        return redirect('/main')
     if request.method == 'POST':
-        newBreed = Breed(name=request.form['name'])
+        newBreed = Breed(
+            name=request.form['name'], user_id=login_session['user_id'])
         session.add(newBreed)
         flash('New Breed %s Has Been Bred' % newBreed.name, 'info')
         session.commit()
@@ -191,11 +220,11 @@ def newBreed():
 @app.route('/breed/<int:breed_id>/edit/', methods=['GET', 'POST'])
 @login_required
 def editBreed(breed_id):
-    if 'username' not in login_session:
-        flash('You must first log-in to add or edit', 'warning')
-        return redirect('/main')
     editedBreed = session.query(
         Breed).filter_by(id=breed_id).one()
+    if editedBreed.user_id != login_session['user_id']:
+        flash('You did not breed that!', 'warning')
+        return redirect(url_for('breed'))
     if request.method == 'POST':
         if request.form['name']:
             editedBreed.name = request.form['name']
@@ -210,10 +239,10 @@ def editBreed(breed_id):
 @app.route('/breed/<int:breed_id>/delete/', methods=['GET', 'POST'])
 @login_required
 def deleteBreed(breed_id):
-    if 'username' not in login_session:
-        flash('You must first log-in to add or edit', 'warning')
-        return redirect('/main')
     breedToDelete = session.query(Breed).filter_by(id=breed_id).one()
+    if breedToDelete.user_id != login_session['user_id']:
+        flash('You cannot wipe out this breed!', 'warning')
+        return redirect(url_for('breed'))
     if request.method == 'POST':
         session.delete(breedToDelete)
         flash('%s Are Now Extinct' % breedToDelete.name, 'info')
@@ -237,14 +266,14 @@ def cats(breed_id):
 @app.route('/breed/<int:breed_id>/cat/new/', methods=['GET', 'POST'])
 @login_required
 def newCat(breed_id):
-    if 'username' not in login_session:
-        flash('You must first log-in to add or edit', 'warning')
-        return redirect('/main')
-    session.query(Breed).filter_by(id=breed_id).one()
+    breed = session.query(Breed).filter_by(id=breed_id).one()
+    if login_session['user_id'] != breed.user_id:
+        flash('You just do not have the cats needed to breed that!', 'warning')
+        return redirect(url_for('cats', breed_id=breed_id))
     if request.method == 'POST':
         newCat = Cat(
             name=request.form['name'], bio=request.form['bio'],
-            breed_id=breed_id)
+            breed_id=breed_id, user_id=breed.user_id)
         session.add(newCat)
         session.commit()
         flash('New Cat %s Is Born' % (newCat.name), 'info')
@@ -259,11 +288,11 @@ def newCat(breed_id):
     methods=['GET', 'POST'])
 @login_required
 def editCat(breed_id, cat_id):
-    if 'username' not in login_session:
-        flash('You must first log-in to add or edit', 'warning')
-        return redirect('/main')
     editedCat = session.query(Cat).filter_by(id=cat_id).one()
-    session.query(Breed).filter_by(id=breed_id).one()
+    breed = session.query(Breed).filter_by(id=breed_id).one()
+    if login_session['user_id'] != breed.user_id:
+        flash('That is not your cat!', 'warning')
+        return redirect(url_for('cats', breed_id=breed_id))
     if request.method == 'POST':
         if request.form['name']:
             editedCat.name = request.form['name']
@@ -284,11 +313,11 @@ def editCat(breed_id, cat_id):
     methods=['GET', 'POST'])
 @login_required
 def deleteCat(breed_id, cat_id):
-    if 'username' not in login_session:
-        flash('You must first log-in to add or edit', 'warning')
-        return redirect('/main')
     catToDelete = session.query(Cat).filter_by(id=cat_id).one()
-    session.query(Breed).filter_by(id=breed_id).one()
+    breed = session.query(Breed).filter_by(id=breed_id).one()
+    if login_session['user_id'] != breed.user_id:
+        flash('You cannot kill a cat that is not yours!', 'warning')
+        return redirect(url_for('cats', breed_id=breed_id))
     if request.method == 'POST':
         session.delete(catToDelete)
         session.commit()
